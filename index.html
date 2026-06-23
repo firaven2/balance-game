@@ -6,141 +6,121 @@
     <title>밸런스 게임 & 성향 분석</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body {
-            font-family: 'Malgun Gothic', sans-serif;
-            margin: 20px;
-            background-color: #f9f9f9;
-            color: #333;
-        }
-        h1, h2 { text-align: center; }
-        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); position: relative; }
-        .admin-btn-wrapper { position: absolute; top: 20px; right: 20px; }
-        .btn { padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer; background-color: #007bff; color: white; font-weight: bold; }
-        .btn:hover { background-color: #0056b3; }
-        .btn-danger { background-color: #dc3545; }
-        .btn-danger:hover { background-color: #bd2130; }
-        .btn-success { background-color: #28a745; }
-        .btn-success:hover { background-color: #218838; }
+        body { font-family: 'Malgun Gothic', sans-serif; background-color: #f5f7fa; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 1000px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h1, h2, h3 { text-align: center; color: #2c3e50; }
+        .info-text { text-align: center; color: #e74c3c; font-weight: bold; margin-bottom: 20px; }
         
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; }
-        input[type="text"], input[type="number"] { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 5px; }
+        /* 폼 스타일 */
+        .form-group { margin-bottom: 20px; text-align: center; }
+        .form-group input[type="text"] { padding: 10px; width: 60px; max-width: 80%; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; text-align: center; }
         
-        .survey-section { margin-top: 25px; padding: 15px; border: 1px solid #eee; border-radius: 5px; background: #fcfcfc; }
-        .survey-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-        .score-total { text-align: right; font-weight: bold; color: #e44d26; margin-top: 10px; }
+        .survey-section { background: #fdfefe; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin-bottom: 25px; }
+        .score-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 15px; margin-top: 15px; }
+        .score-item { display: flex; flex-direction: column; align-items: center; background: #f8fafc; padding: 10px; border-radius: 6px; }
+        .score-item label { margin-bottom: 8px; font-weight: 600; font-size: 14px; }
+        .score-item input[type="number"] { width: 60px; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center; font-size: 15px; }
         
-        /* 결과 화면 레이아웃 (좌우 반반) */
-        .result-view { display: none; }
-        .current-user-title { text-align: center; font-size: 1.4em; color: #007bff; margin-bottom: 20px; background: #e7f1ff; padding: 10px; border-radius: 5px; }
-        .chart-wrapper { display: flex; justify-content: space-between; flex-wrap: wrap; margin-top: 20px; }
-        .chart-container { width: 48%; min-width: 300px; background: #fff; padding: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
-        .nav-buttons { text-align: center; margin-top: 20px; display: flex; justify-content: center; gap: 10px; }
+        .btn { display: block; width: 200px; margin: 20px auto; padding: 12px; background: #3498db; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; font-weight: bold; transition: background 0.3s; }
+        .btn:hover { background: #2980b9; }
+        .btn-secondary { background: #2ecc71; }
+        .btn-secondary:hover { background: #27ae60; }
+        .btn-danger { background: #e74c3c; padding: 5px 10px; font-size: 12px; width: auto; margin: 0; }
+        .btn-danger:hover { background: #c0392b; }
 
-        /* 관리자 모달 */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background: white; padding: 20px; border-radius: 10px; width: 90%; max-width: 700px; max-height: 80vh; overflow-y: auto; }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9em; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+        /* 결과 화면 레이아웃 (좌/우 절반) */
+        #resultArea { display: none; margin-top: 30px; border-top: 2px dashed #cbd5e1; padding-top: 20px; }
+        .chart-container { display: flex; flex-wrap: wrap; justify-content: space-between; margin-top: 20px; }
+        .chart-box { flex: 1; min-width: 300px; max-width: 48%; background: #fff; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border-radius: 8px; box-sizing: border-box; }
+        
+        /* 관리자 영역 */
+        .admin-section { margin-top: 50px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center; }
+        .admin-content { display: none; margin-top: 20px; text-align: left; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
         th { background-color: #f2f2f2; }
+        .admin-controls { margin-bottom: 15px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="admin-btn-wrapper">
-        <button class="btn" style="background-color: #6c757d;" onclick="openAdminModal()">관리자 로그인</button>
-    </div>
+    <h1>상향 분석 & 밸런스 게임</h1>
+    <p class="info-text">※ 각 설문당 선택지에 0~5점을 부여할 수 있으며, 설문별 총합은 '정확히 20점'이어야 합니다.</p>
 
-    <h1>밸런스 게임 및 성향 분석</h1>
-    <hr>
-
-    <div id="surveyForm">
+    <form id="surveyForm">
         <div class="form-group">
-            <label for="nickname">오픈채팅방 닉네임</label>
-            <input type="text" id="nickname" placeholder="닉네임을 입력하세요" required>
+            <label for="nickname" style="font-weight: bold; font-size: 18px;">오픈채팅방 닉네임: </label>
+            <input type="text" id="nickname" required placeholder="닉네임">
         </div>
 
         <div class="survey-section">
-            <h3>Q1. 배우자를 선택할 때 중요한 점 (총 20점 제한, 각 0~5점)</h3>
-            <div class="survey-grid">
-                <div class="form-group"><label>외모</label><input type="number" class="q1-input" min="0" max="5" value="0" onchange="calcTotal()"></div>
-                <div class="form-group"><label>학력</label><input type="number" class="q1-input" min="0" max="5" value="0" onchange="calcTotal()"></div>
-                <div class="form-group"><label>집안</label><input type="number" class="q1-input" min="0" max="5" value="0" onchange="calcTotal()"></div>
-                <div class="form-group"><label>성격</label><input type="number" class="q1-input" min="0" max="5" value="0" onchange="calcTotal()"></div>
-                <div class="form-group"><label>가치관</label><input type="number" class="q1-input" min="0" max="5" value="0" onchange="calcTotal()"></div>
-                <div class="form-group"><label>재산</label><input type="number" class="q1-input" min="0" max="5" value="0" onchange="calcTotal()"></div>
+            <h3>Q1. 배우자를 선택할 때 중요한 점 (총 20점 제한)</h3>
+            <div class="score-row">
+                <div class="score-item"><label>외모</label><input type="number" class="q1-input" min="0" max="5" value="0"></div>
+                <div class="score-item"><label>학력</label><input type="number" class="q1-input" min="0" max="5" value="0"></div>
+                <div class="score-item"><label>집안</label><input type="number" class="q1-input" min="0" max="5" value="0"></div>
+                <div class="score-item"><label>성격</label><input type="number" class="q1-input" min="0" max="5" value="0"></div>
+                <div class="score-item"><label>가치관</label><input type="number" class="q1-input" min="0" max="5" value="0"></div>
+                <div class="score-item"><label>재산</label><input type="number" class="q1-input" min="0" max="5" value="0"></div>
             </div>
-            <div class="score-total" id="q1Total">현재 Q1 총점: 0 / 20점</div>
+            <p style="text-align: right; font-weight: bold;">현재 Q1 총점: <span id="q1Sum">0</span> / 20</p>
         </div>
 
         <div class="survey-section">
-            <h3>Q2. 미국 이민을 갈 때 가장 이상적인 도시? (총 20점 제한, 각 0~5점)</h3>
-            <div class="survey-grid">
-                <div class="form-group"><label>날씨</label><input type="number" class="q2-input" min="0" max="5" value="0" onchange="calcTotal()"></div>
-                <div class="form-group"><label>생활편리성</label><input type="number" class="q2-input" min="0" max="5" value="0" onchange="calcTotal()"></div>
-                <div class="form-group"><label>저렴한생활비</label><input type="number" class="q2-input" min="0" max="5" value="0" onchange="calcTotal()"></div>
-                <div class="form-group"><label>연봉</label><input type="number" class="q2-input" min="0" max="5" value="0" onchange="calcTotal()"></div>
-                <div class="form-group"><label>치안</label><input type="number" class="q2-input" min="0" max="5" value="0" onchange="calcTotal()"></div>
-                <div class="form-group"><label>자녀교육</label><input type="number" class="q2-input" min="0" max="5" value="0" onchange="calcTotal()"></div>
+            <h3>Q2. 미국 이민을 갈 때 가장 이상적인 도시? (총 20점 제한)</h3>
+            <div class="score-row">
+                <div class="score-item"><label>날씨</label><input type="number" class="q2-input" min="0" max="5" value="0"></div>
+                <div class="score-item"><label>생활편리성</label><input type="number" class="q2-input" min="0" max="5" value="0"></div>
+                <div class="score-item"><label>저렴한생활비</label><input type="number" class="q2-input" min="0" max="5" value="0"></div>
+                <div class="score-item"><label>연봉</label><input type="number" class="q2-input" min="0" max="5" value="0"></div>
+                <div class="score-item"><label>치안</label><input type="number" class="q2-input" min="0" max="5" value="0"></div>
+                <div class="score-item"><label>자녀교육</label><input type="number" class="q2-input" min="0" max="5" value="0"></div>
             </div>
-            <div class="score-total" id="q2Total">현재 Q2 총점: 0 / 20점</div>
+            <p style="text-align: right; font-weight: bold;">현재 Q2 총점: <span id="q2Sum">0</span> / 20</p>
         </div>
 
-        <div style="text-align: center; margin-top: 30px;">
-            <button class="btn style="padding: 12px 30px; font-size: 1.1em;" onclick="submitSurvey()">결과 제출하기</button>
-        </div>
-    </div>
+        <button type="submit" class="btn" id="submitBtn">결과 제출하기</button>
+    </form>
 
-    <div id="resultView" class="result-view">
-        <div id="currentUserTitle" class="current-user-title"></div>
+    <div id="resultArea">
+        <h2 id="resultTitle">누구누구 님의 분석 결과</h2>
+        <div style="text-align: center;">
+            <button class="btn btn-secondary" id="nextUserBtn">다른 사람 결과 보기 ↻</button>
+        </div>
         
-        <div class="chart-wrapper">
-            <div class="chart-container">
-                <h4 style="text-align: center;">배우자 선택 조건</h4>
-                <canvas id="chartQ1"></canvas>
+        <div class="chart-container">
+            <div class="chart-box">
+                <h3>Q1. 배우자 선택 기준</h3>
+                <canvas id="chart1"></canvas>
             </div>
-            <div class="chart-container">
-                <h4 style="text-align: center;">미국 이민 이상적인 도시</h4>
-                <canvas id="chartQ2"></canvas>
+            <div class="chart-box">
+                <h3>Q2. 이민 도시 이상향</h3>
+                <canvas id="chart2"></canvas>
             </div>
-        </div>
-
-        <div class="nav-buttons">
-            <button class="btn btn-success" onclick="showOtherResult()">다른 사람 결과보기 🔄</button>
-            <button class="btn" style="background-color: #6c757d;" onclick="backToMyResult()">내 결과 다시보기</button>
         </div>
     </div>
-</div>
 
-<div id="adminModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2>관리자 시스템 (Data Management)</h2>
-            <button class="btn btn-danger" onclick="closeAdminModal()">닫기</button>
-        </div>
-        <div id="adminAuthForm">
-            <p>관리자 계정 정보를 입력하세요.</p>
-            <div class="form-group"><label>아이디</label><input type="text" id="adminId"></div>
-            <div class="form-group"><label>비밀번호</label><input type="password" id="adminPw"></div>
-            <button class="btn" onclick="loginAdmin()">로그인</button>
-        </div>
-        <div id="adminDashboard" style="display: none;">
-            <div style="margin-bottom: 15px;">
-                <button class="btn btn-success" onclick="downloadCSV()">CSV 다운로드 📥</button>
+    <div class="admin-section">
+        <button id="adminModeBtn" style="background: none; border: none; color: #95a5a6; cursor: pointer; text-decoration: underline;">관리자 모드 로그인</button>
+        
+        <div id="adminContent" class="admin-content">
+            <h3>📊 가상 데이터베이스 관리자 패널</h3>
+            <div class="admin-controls">
+                <button class="btn btn-secondary" style="display:inline-block; width:auto; margin:0 10px 0 0;" id="downloadCsvBtn">CSV 내보내기 (Download)</button>
+                <button class="btn btn-danger" style="display:inline-block;" id="clearAllBtn">전체 데이터 초기화</button>
             </div>
             <div style="overflow-x: auto;">
-                <table>
+                <table id="dbTable">
                     <thead>
                         <tr>
-                            <th>닉네임</th>
-                            <th>Q1 (외,학,집,성,가,재)</th>
-                            <th>Q2 (날,편,비,연,치,교)</th>
+                            <th>ID</th><th>닉네임</th>
+                            <th>Q1(외,학,집,성,가,재)</th>
+                            <th>Q2(날,편,비,연,치,교)</th>
                             <th>관리</th>
                         </tr>
                     </thead>
-                    <tbody id="adminTableBody"></tbody>
+                    <tbody></tbody>
                 </table>
             </div>
         </div>
@@ -148,266 +128,280 @@
 </div>
 
 <script>
-    // 로컬 스토리지에 데이터 명칭 정의
-    const DB_KEY = "balance_game_db";
-    const AUTH_KEY = "has_participated";
+// --- 전역 변수 및 초기화 설정 ---
+let db = JSON.parse(localStorage.getItem('gameDB')) || [];
+const hasParticipated = localStorage.getItem('hasParticipated') === 'true';
 
-    let db = JSON.parse(localStorage.getItem(DB_KEY)) || [];
-    let myResult = null; // 현재 참여자의 데이터 저장 변수
-    let currentViewerIndex = -1; // '다른 사람 결과보기' 탐색 인덱스
+const q1Labels = ['외모', '학력', '집안', '성격', '가치관', '재산'];
+const q2Labels = ['날씨', '생활편리성', '저렴한생활비', '연봉', '치안', '자녀교육'];
 
-    // 차트 객체 전역 관리
-    let chartInstanceQ1 = null;
-    let chartInstanceQ2 = null;
+let chart1 = null;
+let chart2 = null;
+let currentViewerIndex = -1; // 타인 결과 조회 트래킹용
 
-    // 페이지 로드 시 중복 참여 여부 확인
-    window.onload = function() {
-        if (localStorage.getItem(AUTH_KEY)) {
-            alert("이미 참여하셨습니다. 결과 화면으로 이동합니다.");
-            myResult = JSON.parse(localStorage.getItem(AUTH_KEY));
-            showResults(myResult);
+// 페이지 로드 시 중복 참여 여부 확인
+window.addEventListener('DOMContentLoaded', () => {
+    if (hasParticipated) {
+        alert("이미 참여하셨습니다! 제출은 제한되며 다른 사람들의 결과 조회가 가능합니다.");
+        document.getElementById('submitBtn').disabled = true;
+        document.getElementById('submitBtn').innerText = "이미 참여함 (제출 불가)";
+        // 마지막으로 본인(혹은 최신 데이터) 결과를 바로 띄워줌
+        if(db.length > 0) {
+            showResultView(db.length - 1);
         }
+    }
+    setupRealtimeSum();
+});
+
+// --- 실시간 점수 합계 계산 로직 ---
+function setupRealtimeSum() {
+    const q1Inputs = document.querySelectorAll('.q1-input');
+    const q2Inputs = document.querySelectorAll('.q2-input');
+    
+    const calcSum = (inputs, targetId) => {
+        let sum = 0;
+        inputs.forEach(input => {
+            // 0~5 범위를 강제 제한
+            if(input.value > 5) input.value = 5;
+            if(input.value < 0 || input.value === '') input.value = 0;
+            sum += parseInt(input.value) || 0;
+        });
+        document.getElementById(targetId).innerText = sum;
+        if(sum > 20) document.getElementById(targetId).style.color = 'red';
+        else document.getElementById(targetId).style.color = 'green';
     };
 
-    // 실시간 점수 합산 및 검증
-    function calcTotal() {
-        let q1Sum = 0, q2Sum = 0;
-        document.querySelectorAll('.q1-input').forEach(i => q1Sum += Number(i.value));
-        document.querySelectorAll('.q2-input').forEach(i => q2Sum += Number(i.value));
+    q1Inputs.forEach(input => input.addEventListener('input', () => calcSum(q1Inputs, 'q1Sum')));
+    q2Inputs.forEach(input => input.addEventListener('input', () => calcSum(q2Inputs, 'q2Sum')));
+}
 
-        document.getElementById('q1Total').innerText = `현재 Q1 총점: ${q1Sum} / 20점`;
-        document.getElementById('q2Total').innerText = `현재 Q2 총점: ${q2Sum} / 20점`;
+// --- 폼 제출 프로세스 ---
+document.getElementById('surveyForm').addEventListener('submit', function(e) {
+    e.preventDefault();
 
-        if(q1Sum > 20) document.getElementById('q1Total').style.color = 'red';
-        else document.getElementById('q1Total').style.color = '#e44d26';
-        
-        if(q2Sum > 20) document.getElementById('q2Total').style.color = 'red';
-        else document.getElementById('q2Total').style.color = '#e44d26';
-
-        return { q1Sum, q2Sum };
+    if (localStorage.getItem('hasParticipated') === 'true') {
+        alert("이미 참여하셨습니다.");
+        return;
     }
 
-    // 데이터 제출 함수
-    function submitSurvey() {
-        const nickname = document.getElementById('nickname').value.trim();
-        if (!nickname) {
-            alert("오픈채팅방 닉네임을 입력해 주세요.");
-            return;
-        }
+    const nickname = document.getElementById('nickname').value.trim();
+    const q1Inputs = document.querySelectorAll('.q1-input');
+    const q2Inputs = document.querySelectorAll('.q2-input');
 
-        if (localStorage.getItem(AUTH_KEY)) {
-            alert("이미 참여하신 기록이 있습니다.");
-            return;
-        }
+    let q1Data = [], q2Data = [];
+    let q1Sum = 0, q2Sum = 0;
 
-        const totals = calcTotal();
-        
-        // 유효성 검사 (0~5 범위 및 총점 20점 제한)
-        let invalidRange = false;
-        const q1Data = Array.from(document.querySelectorAll('.q1-input')).map(i => {
-            let v = Number(i.value);
-            if(v < 0 || v > 5) invalidRange = true;
-            return v;
-        });
-        const q2Data = Array.from(document.querySelectorAll('.q2-input')).map(i => {
-            let v = Number(i.value);
-            if(v < 0 || v > 5) invalidRange = true;
-            return v;
-        });
+    q1Inputs.forEach(input => {
+        let val = parseInt(input.value) || 0;
+        q1Data.push(val);
+        q1Sum += val;
+    });
+    q2Inputs.forEach(input => {
+        let val = parseInt(input.value) || 0;
+        q2Data.push(val);
+        q2Sum += val;
+    });
 
-        if (invalidRange) {
-            alert("각 선택지마다 입력할 수 있는 점수는 0점부터 5점까지입니다.");
-            return;
-        }
-        if (totals.q1Sum > 20 || totals.q2Sum > 20) {
-            alert("설문당 총점은 20점을 초과할 수 없습니다.");
-            return;
-        }
-
-        // 데이터 객체 생성
-        const payload = {
-            id: Date.now(),
-            nickname: nickname,
-            q1: q1Data, // [외모, 학력, 집안, 성격, 가치관, 재산]
-            q2: q2Data  // [날씨, 생활편리성, 저렴한생활비, 연봉, 치안, 자녀교육]
-        };
-
-        // DB(localStorage)에 저장
-        db.push(payload);
-        localStorage.setItem(DB_KEY, JSON.stringify(db));
-        
-        // 중복 제출 방지 플래그(유저 데이터 포함) 세팅
-        localStorage.setItem(AUTH_KEY, JSON.stringify(payload));
-        myResult = payload;
-
-        alert("제출이 완료되었습니다!");
-        showResults(payload);
+    // 밸런스 점수 검증 (정확히 20점 조건)
+    if (q1Sum !== 20 || q2Sum !== 20) {
+        alert(`점수 총합 오류!\n\nQ1 총점: ${q1Sum}점\nQ2 총점: ${q2Sum}점\n\n두 설문 모두 각각 '정확히 20점'을 채워야 제출 가능합니다.`);
+        return;
     }
 
-    // 육각형 그래프 그리기 (Chart.js Radar)
-    function renderCharts(data, titlePrefix = "내 결과") {
-        document.getElementById('currentUserTitle').innerText = `✨ [${titlePrefix}] 닉네임: ${data.nickname} 님의 성향 지표`;
+    // 객체 데이터 생성 및 DB 저장
+    const newRecord = {
+        id: Date.now(),
+        nickname: nickname,
+        q1: q1Data,
+        q2: q2Data
+    };
 
-        const ctx1 = document.getElementById('chartQ1').getContext('2m');
-        const ctx2 = document.getElementById('chartQ2').getContext('2m');
+    db.push(newRecord);
+    localStorage.setItem('gameDB', JSON.stringify(db));
+    localStorage.setItem('hasParticipated', 'true'); // 쿠키 대용 브라우저 락(Lock)
 
-        // 기존 차트 파괴 (재렌더링 오류 방지)
-        if (chartInstanceQ1) chartInstanceQ1.destroy();
-        if (chartInstanceQ2) chartInstanceQ2.destroy();
+    alert("성공적으로 제출되었습니다!");
+    
+    document.getElementById('submitBtn').disabled = true;
+    document.getElementById('submitBtn').innerText = "이미 참여함 (제출 불가)";
+    
+    // 결과 화면 노출
+    showResultView(db.length - 1);
+});
 
-        const chartConfig = (labels, values, labelName, color) => ({
-            type: 'radar',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: labelName,
-                    data: values,
-                    backgroundColor: color + '33',
-                    borderColor: color,
-                    borderWidth: 2,
-                    pointBackgroundColor: color
-                }]
-            },
-            options: {
-                scales: {
-                    r: {
-                        min: 0,
-                        max: 5,
-                        ticks: { stepSize: 1, display: false }
-                    }
-                },
-                plugins: { legend: { display: false } }
+// --- 육각형 그래프 그리기 (Chart.js 라이브러리 연동) ---
+function renderCharts(nickname, q1Data, q2Data) {
+    document.getElementById('resultArea').style.display = 'block';
+    document.getElementById('resultTitle').innerText = `✨ [${nickname}] 님의 성향 분석 결과`;
+
+    const chartOptions = {
+        scales: {
+            r: {
+                min: 0,
+                max: 5,
+                ticks: { stepSize: 1, display: false },
+                angleLines: { display: true },
+                suggestedMin: 0,
+                suggestedMax: 5
             }
-        });
+        },
+        plugins: { legend: { display: false } },
+        responsive: true,
+        maintainAspectRatio: true
+    };
 
-        chartInstanceQ1 = new Chart(document.getElementById('chartQ1'), chartConfig(
-            ['외모', '학력', '집안', '성격', '가치관', '재산'],
-            data.q1, '배우자 조건', '#007bff'
-        ));
+    if (chart1) chart1.destroy();
+    if (chart2) chart2.destroy();
 
-        chartInstanceQ2 = new Chart(document.getElementById('chartQ2'), chartConfig(
-            ['날씨', '생활편리', '생활비', '연봉', '치안', '자녀교육'],
-            data.q2, '이민 도시 조건', '#28a745'
-        ));
+    const ctx1 = document.getElementById('chart1').getContext('2d');
+    chart1 = new Chart(ctx1, {
+        type: 'radar',
+        data: {
+            labels: q1Labels,
+            datasets: [{
+                data: q1Data,
+                backgroundColor: 'rgba(52, 152, 219, 0.2)',
+                borderColor: 'rgba(52, 152, 219, 1)',
+                borderWidth: 2,
+                pointBackgroundColor: 'rgba(52, 152, 219, 1)'
+            }]
+        },
+        options: chartOptions
+    });
+
+    const ctx2 = document.getElementById('chart2').getContext('2d');
+    chart2 = new Chart(ctx2, {
+        type: 'radar',
+        data: {
+            labels: q2Labels,
+            datasets: [{
+                data: q2Data,
+                backgroundColor: 'rgba(46, 204, 113, 0.2)',
+                borderColor: 'rgba(46, 204, 113, 1)',
+                borderWidth: 2,
+                pointBackgroundColor: 'rgba(46, 204, 113, 1)'
+            }]
+        },
+        options: chartOptions
+    });
+}
+
+function showResultView(index) {
+    if(db.length === 0 || index < 0 || index >= db.length) return;
+    currentViewerIndex = index;
+    const record = db[index];
+    renderCharts(record.nickname, record.q1, record.q2);
+    // 상단 스크롤 이동으로 가독성 확보
+    document.getElementById('resultArea').scrollIntoView({ behavior: 'smooth' });
+}
+
+// --- 다른 사람 결과 보기 버튼 (로테이션 순환형) ---
+document.getElementById('nextUserBtn').addEventListener('click', () => {
+    if(db.length <= 1) {
+        alert("데이터베이스에 다른 참가자가 없습니다.");
+        return;
+    }
+    // 다음 인덱스로 순환 이동
+    let nextIndex = currentViewerIndex - 1;
+    if(nextIndex < 0) nextIndex = db.length - 1; 
+    
+    showResultView(nextIndex);
+});
+
+
+// ==========================================
+// 🔐 관리자 전용 기능 인터페이스 (Admin Control)
+// ==========================================
+
+document.getElementById('adminModeBtn').addEventListener('click', () => {
+    const adminId = prompt("관리자 아이디를 입력하세요:");
+    const adminPw = prompt("관리자 비밀번호를 입력하세요:");
+
+    if(adminId === "admin" && adminPw === "GoUSA1") {
+        alert("인증에 성공했습니다.");
+        document.getElementById('adminContent').style.display = 'block';
+        updateAdminTable();
+    } else {
+        alert("아이디 또는 비밀번호가 올바르지 않습니다.");
+    }
+});
+
+// 관리자 테이블 갱신
+function updateAdminTable() {
+    const tbody = document.querySelector('#dbTable tbody');
+    tbody.innerHTML = '';
+
+    db.forEach((item, index) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${index + 1}</td>
+            <td><strong>${escapeHtml(item.nickname)}</strong></td>
+            <td>${item.q1.join(',')}</td>
+            <td>${item.q2.join(',')}</td>
+            <td><button class="btn btn-danger" onclick="deleteRecord(${index})">삭제</button></td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+// 데이터 개별 선택 삭제 권한
+function deleteRecord(index) {
+    if(confirm(`[${db[index].nickname}] 님의 데이터를 삭제하시겠습니까?`)) {
+        db.splice(index, 1);
+        localStorage.setItem('gameDB', JSON.stringify(db));
+        updateAdminTable();
+        alert("삭제되었습니다.");
+    }
+}
+
+// 전체 데이터 초기화
+document.getElementById('clearAllBtn').addEventListener('click', () => {
+    if(confirm("정말로 가상 데이터베이스의 전체 데이터를 초기화하시겠습니까?\n(유저 참여 잠금 쿠키도 함께 초기화됩니다.)")) {
+        db = [];
+        localStorage.removeItem('gameDB');
+        localStorage.removeItem('hasParticipated');
+        updateAdminTable();
+        alert("모든 데이터가 포맷되었습니다. 새로고침 후 정상 반영됩니다.");
+        location.reload();
+    }
+});
+
+// --- CSV 파일 변환 및 다운로드 기능 ---
+document.getElementById('downloadCsvBtn').addEventListener('click', () => {
+    if(db.length === 0) {
+        alert("다운로드할 데이터가 없습니다.");
+        return;
     }
 
-    // 결과 화면 노출 토글
-    function showResults(data) {
-        document.getElementById('surveyForm').style.display = 'none';
-        document.getElementById('resultView').style.display = 'block';
-        renderCharts(data, "내 결과");
-    }
+    // CSV 헤더 작성 (BOM 추가로 엑셀 한글 깨짐 방지)
+    let csvContent = "\uFEFF"; 
+    csvContent += "ID,닉네임,Q1_외모,Q1_학력,Q1_집안,Q1_성격,Q1_가치관,Q1_재산,Q2_날씨,Q2_생활편리성,Q2_저렴한생활비,Q2_연봉,Q2_치안,Q2_자녀교육\n";
 
-    // 다른 사람 결과보기 (랜덤 또는 순차 탐색)
-    function showOtherResult() {
-        if (db.length <= 1) {
-            alert("참여한 다른 사람이 아직 없습니다.");
-            return;
-        }
-        
-        // 본인 데이터를 제외한 데이터 필터링
-        let filtered = db.filter(item => !myResult || item.id !== myResult.id);
-        
-        if (filtered.length === 0) {
-            alert("참여한 다른 사람이 없습니다.");
-            return;
-        }
+    db.forEach((item, index) => {
+        let row = [
+            index + 1,
+            `"${item.nickname.replace(/"/g, '""')}"`, // 쉼표 유실 및 따옴표 이스케이프 방지
+            ...item.q1,
+            ...item.q2
+        ];
+        csvContent += row.join(",") + "\n";
+    });
 
-        currentViewerIndex = (currentViewerIndex + 1) % filtered.length;
-        const targetData = filtered[currentViewerIndex];
-        renderCharts(targetData, "다른 사람 결과");
-    }
+    // 다운로드 링크 트리거 생성
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `BalanceGame_Results_${new Date().toISOString().slice(0,10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+});
 
-    // 내 결과 다시보기
-    function backToMyResult() {
-        if(myResult) {
-            renderCharts(myResult, "내 결과");
-        } else {
-            alert("입력된 내 결과가 없습니다.");
-        }
-    }
-
-    /* --- 관리자 시스템 스크립트 --- */
-    function openAdminModal() { document.getElementById('adminModal').style.display = 'flex'; }
-    function closeAdminModal() { document.getElementById('adminModal').style.display = 'none'; }
-
-    function loginAdmin() {
-        const id = document.getElementById('adminId').value;
-        const pw = document.getElementById('adminPw').value;
-
-        if (id === "admin" && pw === "GoUSA1") {
-            document.getElementById('adminAuthForm').style.display = 'none';
-            document.getElementById('adminDashboard').style.display = 'block';
-            renderAdminTable();
-        } else {
-            alert("로그인 정보가 올바르지 않습니다.");
-        }
-    }
-
-    function renderAdminTable() {
-        const tbody = document.getElementById('adminTableBody');
-        tbody.innerHTML = "";
-        
-        db = JSON.parse(localStorage.getItem(DB_KEY)) || [];
-
-        db.forEach((item, index) => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td><strong>${item.nickname}</strong></td>
-                <td>[${item.q1.join(',')}]</td>
-                <td>[${item.q2.join(',')}]</td>
-                <td><button class="btn btn-danger" style="padding:3px 8px; font-size:0.85em;" onclick="deleteData(${item.id})">삭제</button></td>
-            `;
-            tbody.appendChild(tr);
-        });
-    }
-
-    // 데이터 선택적 삭제
-    function deleteData(id) {
-        if(confirm("해당 데이터를 정말 삭제하시겠습니까?")) {
-            db = db.filter(item => item.id !== id);
-            localStorage.setItem(DB_KEY, JSON.stringify(db));
-            
-            // 만약 지운 데이터가 내 데이터라면 중복방지 플래그도 같이 날림
-            if(myResult && myResult.id === id) {
-                localStorage.removeItem(AUTH_KEY);
-                myResult = null;
-                location.reload();
-            }
-            
-            renderAdminTable();
-        }
-    }
-
-    // CSV 파일 빌드 및 다운로드
-    function downloadCSV() {
-        if (db.length === 0) {
-            alert("다운로드할 데이터가 없습니다.");
-            return;
-        }
-
-        // CSV 헤더 정의 (엑셀 깨짐 방지를 위해 BOM 추가)
-        let csvContent = "\uFEFF"; 
-        csvContent += "닉네임,Q1_외모,Q1_학력,Q1_집안,Q1_성격,Q1_가치관,Q1_재산,Q2_날씨,Q2_생활편리성,Q2_저렴한생활비,Q2_연봉,Q2_치안,Q2_자녀교육\n";
-
-        db.forEach(item => {
-            let row = [
-                `"${item.nickname.replace(/"/g, '""')}"`, // 닉네임 쉼표 예외 처리
-                ...item.q1,
-                ...item.q2
-            ].join(",");
-            csvContent += row + "\n";
-        });
-
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.setAttribute("href", url);
-        link.setAttribute("download", `balance_game_results_${Date.now()}.csv`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    }
+// XSS 방지 보조 함수
+function escapeHtml(str) {
+    return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+}
 </script>
 </body>
 </html>
