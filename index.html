@@ -3,27 +3,292 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>배우자를 선택할 때 중요한 점</title>
+    <title>밸런스 게임 성향 테스트</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { font-family: 'Malgun Gothic', sans-serif; background-color: #f7f9fa; color: #333; margin: 0; padding: 20px; }
-        .container { max-width: 600px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        body { font-family: 'Malgun Gothic', sans-serif; background-color: #f5f7fa; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 1000px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         h1, h2 { text-align: center; color: #2c3e50; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; }
-        input[type="text"], input[type="number"], input[type="password"] { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
-        .score-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
-        .total-counter { text-align: right; font-weight: bold; margin-top: 10px; color: #e74c3c; }
-        button { width: 100%; padding: 12px; background: #3498db; color: #fff; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; margin-top: 20px; }
-        button:hover { background: #2980b9; }
-        button:disabled { background: #bdc3c7; cursor: not-allowed; }
-        .chart-container { display: none; margin-top: 30px; }
-        .admin-section { margin-top: 5px; text-align: right; }
-        .admin-btn { background: none; border: none; color: #95a5a6; cursor: pointer; text-decoration: underline; font-size: 13px; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
-        .modal-content { background: #fff; padding: 25px; border-radius: 8px; width: 90%; max-width: 400px; }
-        .admin-dashboard { display: none; margin-top: 30px; border-top: 2px dashed #ccc; padding-top: 20px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 12px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
-        th { background: #f2f2f2; }
-        .alert-msg { display: none; background-color: #f8d7da; color: #721c24;
+        .section { margin-bottom: 30px; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px; background: #fafafa; }
+        .input-group { margin-bottom: 15px; }
+        label { display: inline-block; width: 180px; font-weight: bold; }
+        input[type="number"] { width: 60px; padding: 5px; border: 1px solid #ccc; border-radius: 4px; text-align: center; }
+        input[type="text"] { width: 250px; padding: 6px; border: 1px solid #ccc; border-radius: 4px; }
+        .score-info { font-size: 0.9em; color: #e74c3c; font-weight: bold; margin-top: 5px; }
+        button { background-color: #3498db; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; width: 100%; margin-top: 10px; }
+        button:hover { background-color: #2980b9; }
+        
+        /* 결과 화면 레이아웃 (좌/우 반반) */
+        #resultContainer { display: none; margin-top: 30px; }
+        .chart-wrapper { display: flex; justify-content: space-between; flex-wrap: wrap; margin-top: 20px; }
+        .chart-box { width: 48%; min-width: 300px; background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); box-sizing: border-box; }
+        
+        /* 관리자 섹션 */
+        .admin-section { margin-top: 50px; padding: 20px; border-top: 2px dashed #ccc; }
+        .admin-panel { display: none; margin-top: 15px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>밸런스 게임 성향 테스트</h1>
+    
+    <form id="gameForm">
+        <div class="input-group" style="text-align: center; margin-bottom: 25px;">
+            <label for="nickname" style="width: auto; margin-right: 10px;">오픈채팅방 닉네임:</label>
+            <input type="text" id="nickname" required placeholder="닉네임을 입력하세요">
+        </div>
+
+        <div class="section">
+            <h2>Q1. 배우자를 선택할 때 중요한 점</h2>
+            <p class="score-info">* 각 항목 0~5점 입력 가능 (6개 항목 총점 최대 20점)</p>
+            <div class="input-group"><label>외모:</label> <input type="number" class="q1-input" min="0" max="5" value="0"></div>
+            <div class="input-group"><label>학력:</label> <input type="number" class="q1-input" min="0" max="5" value="0"></div>
+            <div class="input-group"><label>집안:</label> <input type="number" class="q1-input" min="0" max="5" value="0"></div>
+            <div class="input-group"><label>성격:</label> <input type="number" class="q1-input" min="0" max="5" value="0"></div>
+            <div class="input-group"><label>가치관:</label> <input type="number" class="q1-input" min="0" max="5" value="0"></div>
+            <div class="input-group"><label>재산:</label> <input type="number" class="q1-input" min="0" max="5" value="0"></div>
+            <div id="q1-total" class="score-info" style="color:#2c3e50;">현재 총점: 0 / 20</div>
+        </div>
+
+        <div class="section">
+            <h2>Q2. 미국 이민을 갈 때 가장 이상적인 도시?</h2>
+            <p class="score-info">* 각 항목 0~5점 입력 가능 (6개 항목 총점 최대 20점)</p>
+            <div class="input-group"><label>날씨:</label> <input type="number" class="q2-input" min="0" max="5" value="0"></div>
+            <div class="input-group"><label>인프라·생활편리성:</label> <input type="number" class="q2-input" min="0" max="5" value="0"></div>
+            <div class="input-group"><label>저렴한 생활비:</label> <input type="number" class="q2-input" min="0" max="5" value="0"></div>
+            <div class="input-group"><label>연봉:</label> <input type="number" class="q2-input" min="0" max="5" value="0"></div>
+            <div class="input-group"><label>치안:</label> <input type="number" class="q2-input" min="0" max="5" value="0"></div>
+            <div class="input-group"><label>자녀교육:</label> <input type="number" class="q2-input" min="0" max="5" value="0"></div>
+            <div id="q2-total" class="score-info" style="color:#2c3e50;">현재 총점: 0 / 20</div>
+        </div>
+
+        <button type="button" onclick="submitGame()">결과 보기 및 제출하기</button>
+    </form>
+
+    <div id="resultContainer">
+        <h2>테스트 결과 분석</h2>
+        <div class="chart-wrapper">
+            <div class="chart-box">
+                <h3>Q1. 배우자 선택 기준</h3>
+                <canvas id="chart1"></canvas>
+            </div>
+            <div class="chart-box">
+                <h3>Q2. 이민 도시 기준</h3>
+                <canvas id="chart2"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="admin-section">
+        <h3>관리자 메뉴</h3>
+        <div id="adminLoginBox">
+            <input type="text" id="adminId" placeholder="관리자 아이디" style="width:120px;">
+            <input type="password" id="adminPw" placeholder="비밀번호" style="width:120px;">
+            <button type="button" onclick="loginAdmin()" style="width:auto; padding:5px 10px; font-size:14px;">로그인</button>
+        </div>
+        <div id="adminPanel" class="admin-panel">
+            <p>인증 성공. 수집된 데이터를 다운로드할 수 있습니다.</p>
+            <button type="button" onclick="downloadCSV()" style="background-color:#27ae60;">CSV 파일 다운로드</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 실시간 총점 계산 로직
+    function setupTotalTracker(inputClass, totalId) {
+        const inputs = document.querySelectorAll('.' + inputClass);
+        inputs.forEach(input => {
+            input.addEventListener('input', () => {
+                let sum = 0;
+                inputs.forEach(i => sum += Number(i.value || 0));
+                document.getElementById(totalId).innerText = `현재 총점: ${sum} / 20`;
+                if(sum > 20) {
+                    document.getElementById(totalId).style.color = '#e74c3c';
+                } else {
+                    document.getElementById(totalId).style.color = '#2c3e50';
+                }
+            });
+        });
+    }
+    setupTotalTracker('q1-input', 'q1-total');
+    setupTotalTracker('q2-input', 'q2-total');
+
+    // 게임 제출 및 검증
+    function submitGame() {
+        // 1. 중복 제출 검증 (localStorage 확인)
+        if (localStorage.getItem('alreadyVoted') === 'true') {
+            alert("이미 참여하셨습니다.");
+            return;
+        }
+
+        const nickname = document.getElementById('nickname').value.trim();
+        if (!nickname) {
+            alert("오픈채팅방 닉네임을 입력해주세요.");
+            return;
+        }
+
+        // 점수 추출
+        const q1Inputs = document.querySelectorAll('.q1-input');
+        const q2Inputs = document.querySelectorAll('.q2-input');
+        
+        let q1Scores = [], q2Scores = [];
+        let q1Sum = 0, q2Sum = 0;
+        let outOfRange = false;
+
+        q1Inputs.forEach(i => {
+            let val = Number(i.value || 0);
+            if(val < 0 || val > 5) outOfRange = true;
+            q1Scores.push(val);
+            q1Sum += val;
+        });
+
+        q2Inputs.forEach(i => {
+            let val = Number(i.value || 0);
+            if(val < 0 || val > 5) outOfRange = true;
+            q2Scores.push(val);
+            q2Sum += val;
+        });
+
+        // 2. 점수 유효성 검증
+        if (outOfRange) {
+            alert("각 선택지마다 0부터 5 사이의 점수만 입력할 수 있습니다.");
+            return;
+        }
+        if (q1Sum > 20 || q2Sum > 20) {
+            alert("각 설문당 총점은 20점을 초과할 수 없습니다.");
+            return;
+        }
+
+        // 3. 결과 그래프 그리기 (시각화)
+        document.getElementById('resultContainer').style.display = 'block';
+        drawCharts(q1Scores, q2Scores);
+
+        // 4. 로컬 스토리지에 데이터 저장 (관리자용)
+        saveDataToLocal(nickname, q1Scores, q2Scores);
+
+        // 5. 중복 제출 방지 락 걸기
+        localStorage.setItem('alreadyVoted', 'true');
+
+        // 6. 이메일 리포트 전송 유도 (Mailto 연동)
+        sendEmailReport(nickname, q1Scores, q2Scores);
+    }
+
+    // Chart.js 육각형 그리기 함수
+    let chart1Instance = null;
+    let chart2Instance = null;
+
+    function drawCharts(q1, q2) {
+        const q1Labels = ['외모', '학력', '집안', '성격', '가치관', '재산'];
+        const q2Labels = ['날씨', '인프라생활편리성', '저렴한생활비', '연봉', '치안', '자녀교육'];
+
+        const chartOptions = {
+            scales: { r: { min: 0, max: 5, ticks: { stepSize: 1 } } },
+            plugins: { legend: { display: false } }
+        };
+
+        if(chart1Instance) chart1Instance.destroy();
+        if(chart2Instance) chart2Instance.destroy();
+
+        chart1Instance = new Chart(document.getElementById('chart1'), {
+            type: 'radar',
+            data: {
+                labels: q1Labels,
+                datasets: [{ data: q1, backgroundColor: 'rgba(52, 152, 219, 0.2)', borderColor: 'rgba(52, 152, 219, 1)', borderWidth: 2 }]
+            },
+            options: chartOptions
+        });
+
+        chart2Instance = new Chart(document.getElementById('chart2'), {
+            type: 'radar',
+            data: {
+                labels: q2Labels,
+                datasets: [{ data: q2, backgroundColor: 'rgba(46, 204, 113, 0.2)', borderColor: 'rgba(46, 204, 113, 1)', borderWidth: 2 }]
+            },
+            options: chartOptions
+        });
+    }
+
+    // 데이터를 브라우저 내 로컬스토리지에 누적 저장
+    function saveDataToLocal(nickname, q1, q2) {
+        let currentData = JSON.parse(localStorage.getItem('gameResults') || '[]');
+        const newData = {
+            date: new Date().toLocaleString(),
+            nickname: nickname,
+            q1_외모: q1[0], q1_학력: q1[1], q1_집안: q1[2], q1_성격: q1[3], q1_가치관: q1[4], q1_재산: q1[5],
+            q2_날씨: q2[0], q2_인프라: q2[1], q2_생활비: q2[2], q2_연봉: q2[3], q2_치안: q2[4], q2_교육: q2[5]
+        };
+        currentData.push(newData);
+        localStorage.setItem('gameResults', JSON.stringify(currentData));
+    }
+
+    // 이메일 리포트 제출 (Mailto 방식)
+    function sendEmailReport(nickname, q1, q2) {
+        const email = "ptusy@outlook.com";
+        const subject = encodeURIComponent(`[밸런스게임 제출] ${nickname} 님의 성향 리포트`);
+        
+        // 메일 본문 구성 (텍스트 리포트 + CSV 데이터 포맷 포함)
+        let bodyText = `★ 밸런스 게임 결과 리포트 ★\n`;
+        bodyText += `참여자 닉네임: ${nickname}\n\n`;
+        bodyText += `[Q1. 배우자 조건 점수]\n`;
+        bodyText += `외모:${q1[0]}, 학력:${q1[1]}, 집안:${q1[2]}, 성격:${q1[3]}, 가치관:${q1[4]}, 재산:${q1[5]}\n\n`;
+        bodyText += `[Q2. 이민 도시 조건 점수]\n`;
+        bodyText += `날씨:${q2[0]}, 인프라:${q2[1]}, 생활비:${q2[2]}, 연봉:${q2[3]}, 치안:${q2[4]}, 교육:${q2[5]}\n\n`;
+        bodyText += `----\n`;
+        bodyText += `[CSV 데이터라인]\n`;
+        bodyText += `"${nickname}",${q1.join(',')},${q2.join(',')}\n`;
+
+        const mailtoUrl = `mailto:${email}?subject=${subject}&body=${encodeURIComponent(bodyText)}`;
+        
+        alert("성향 분석이 완료되었습니다!\n확인을 누르시면 ptusy@outlook.com 으로 결과 리포트 메일 발송 화면이 열립니다.");
+        window.location.href = mailtoUrl;
+    }
+
+    // 관리자 로그인 기능
+    function loginAdmin() {
+        const id = document.getElementById('adminId').value;
+        const pw = document.getElementById('adminPw').value;
+
+        if (id === 'admin' && pw === 'GoUSA1') {
+            document.getElementById('adminPanel').style.display = 'block';
+            document.getElementById('adminLoginBox').style.display = 'none';
+        } else {
+            alert("관리자 정보가 일치하지 않습니다.");
+        }
+    }
+
+    // 누적 데이터 CSV 다운로드 기능
+    function downloadCSV() {
+        const data = JSON.parse(localStorage.getItem('gameResults') || '[]');
+        if (data.length === 0) {
+            alert("저장된 데이터가 없습니다.");
+            return;
+        }
+
+        const headers = ["제출시간", "닉네임", "Q1_외모", "Q1_학력", "Q1_집안", "Q1_성격", "Q1_가치관", "Q1_재산", "Q2_날씨", "Q2_인프라", "Q2_생활비", "Q2_연봉", "Q2_치안", "Q2_교육"];
+        
+        let csvContent = "\uFEFF"; // Excel 한글 깨짐 방지 BOM 추가
+        csvContent += headers.join(",") + "\n";
+
+        data.forEach(row => {
+            const values = [
+                `"${row.date}"`, `"${row.nickname}"`,
+                row.q1_외모, row.q1_학력, row.q1_집안, row.q1_성격, row.q1_가치관, row.q1_재산,
+                row.q2_날씨, row.q2_인프라, row.q2_생활비, row.q2_연봉, row.q2_치안, row.q2_교육
+            ];
+            csvContent += values.join(",") + "\n";
+        });
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", "balance_game_results.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+</script>
+
+</body>
+</html>
